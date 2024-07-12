@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Downloader</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #progress {
+            display: none;
+            text-align: center;
+        }
+        .progress-bar {
+            width: 60%;
+            height: 30px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            margin: 10px auto;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #3498db;
+            border-radius: 5px;
+            transition: width 0.3s ease-in-out;
+        }
+        .progress-text {
+            line-height: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>cool tingy</h1>
+    <form id="downloadForm" action="/download" method="post">
+        <label for="song_url">Spotify URL:</label>
+        <input type="text" id="song_url" name="song_url" required>
+        <br>
+        <button type="submit" id="downloadButton">Download</button>
+    </form>
+
+    <div id="progress">
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 0;"></div>
+        </div>
+        <div class="progress-text">0%</div>
+    </div>
+
+    <script>
+        const form = document.getElementById('downloadForm');
+        const downloadButton = document.getElementById('downloadButton');
+        const progressDiv = document.getElementById('progress');
+        const progressBar = document.querySelector('.progress-fill');
+        const progressText = document.querySelector('.progress-text');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            downloadButton.disabled = true;
+            progressDiv.style.display = 'block';
+
+            const formData = new FormData(form);
+            const response = await fetch('/download', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const jsonResponse = await response.json();
+                const session_id = jsonResponse.session_id;
+
+                // Polling for progress updates
+                const intervalId = setInterval(async () => {
+                    const progressResponse = await fetch(`/download_progress/${session_id}`);
+                    if (progressResponse.ok) {
+                        const progress = await progressResponse.json();
+                        progressBar.style.width = `${progress.percentage}%`;
+                        progressText.textContent = `${progress.percentage}%`;
+
+                        if (progress.percentage === 100) {
+                            clearInterval(intervalId);
+                            window.location.href = `/download_zip/${session_id}`;
+                        }
+                    }
+                }, 1000);
+            } else {
+                alert('Error downloading file.');
+                downloadButton.disabled = false;
+                progressDiv.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

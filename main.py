@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, send_file, jsonify
+from flask import Flask, request, render_template, send_file, jsonify, redirect
 import subprocess
 import os
 import shutil
@@ -24,31 +24,31 @@ def download_song():
     song_url = request.form['song_url']
     session_id = str(uuid.uuid4())
     session_download_dir = os.path.join(DOWNLOAD_DIR, session_id)
-    sessions[session_id] = {'status': 'started', 'progress': 0}
-
-    def download_process():
-        try:
-            os.makedirs(session_download_dir, exist_ok=True)
-            ffmpeg_executable = ffmpeg.get_ffmpeg_exe()
-            result = subprocess.run([
-                'spotdl', 
-                '--ffmpeg', ffmpeg_executable, 
-                song_url, 
-                '--output', os.path.join(session_download_dir, '{artist} - {title}.{ext}')
-            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            
-            if result.returncode == 0:
-                sessions[session_id]['status'] = 'completed'
-            else:
-                sessions[session_id]['status'] = 'failed'
-                sessions[session_id]['error'] = result.stderr
-        except Exception as e:
-            sessions[session_id]['status'] = 'error'
-            sessions[session_id]['error'] = str(e)
-
-    threading.Thread(target=download_process).start()
     
-    return jsonify({'success': True, 'session_id': session_id})
+    try:
+        # Create a unique download directory for this session
+        os.makedirs(session_download_dir, exist_ok=True)
+        
+        # Ensure ffmpeg is available
+        ffmpeg_executable = ffmpeg.get_ffmpeg_exe()
+        
+        # spotdl command to download the content
+        result = subprocess.run([
+            'spotdl', 
+            '--ffmpeg', ffmpeg_executable, 
+            song_url, 
+            '--output', os.path.join(session_download_dir, '{artist} - {title}.{ext}')
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        
+        # Check if the process was successful
+        if result.returncode == 0:
+            return redirect(f"/download_zip/{session_id}")
+            return jsonify({'success': True, 'session_id': session_id})
+        else:
+            return jsonify({'success': False, 'error_message': f"Error: {result.stderr}"})
+    except Exception as e:
+        return jsonify({'success': False, 'error_message': f"Unexpected error: {str(e)}"})
+
 
 @app.route('/get_id', methods=['GET'])
 def get_id():
@@ -67,10 +67,8 @@ def download_progress(session_id):
         downloaded_items = len([name for name in os.listdir(session_download_dir) if os.path.isfile(os.path.join(session_download_dir, name))])
         percentage = int((downloaded_items / total_items) * 100) if total_items > 0 else 0
         sessions[session_id]['progress'] = percentage
-        print(percentage)
-        print(downloaded_items)
-        print(total_items)
-        return jsonify({'success': True, 'percentage': percentage})
+
+        return jsonify({'success': True, 'percentage': percentage, 'total_items': total_items})
     except Exception as e:
         return jsonify({'success': False, 'error_message': str(e)})
 

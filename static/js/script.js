@@ -5,14 +5,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const progressText = document.querySelector('.progress-text');
 
     form.addEventListener('submit', async (event) => {
-        console.log("Form submitted");
         event.preventDefault();
         downloadButton.disabled = true;
         progressDiv.style.display = 'flex';
         progressDiv.style.justifyContent = 'center';
 
         const formData = new FormData(form);
-        console.log(formData);
         const response = await fetch('/download', {
             method: 'POST',
             body: formData
@@ -20,11 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (response.ok) {
             const jsonResponse = await response.json();
+            console.log(jsonResponse);
             const session_id = jsonResponse.session_id;
+            console.log(`Session ID: ${session_id}`);
 
             // Polling for progress updates
             const intervalId = setInterval(async () => {
-                console.log('Polling for progress updates');
                 const progressResponse = await fetch(`/download_progress/${session_id}`);
                 if (progressResponse.ok) {
                     const progress = await progressResponse.json();

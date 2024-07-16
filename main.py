@@ -15,21 +15,6 @@ DOWNLOAD_DIR = './downloads'
 # Store session data in a dictionary
 sessions = {}
 
-client_id = 'YOUR_SPOTIFY_CLIENT_ID'
-client_secret = 'YOUR_SPOTIFY_CLIENT_SECRET'
-client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
-sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-
-def get_total_tracks_in_playlist(playlist_url):
-    playlist_id = playlist_url.split("/")[-1].split("?")[0]
-    playlist = sp.playlist(playlist_id)
-    return playlist['tracks']['total']
-
-def get_total_tracks_in_album(album_url):
-    album_id = album_url.split("/")[-1].split("?")[0]
-    album = sp.album(album_id)
-    return album['total_tracks']
-
 @app.route('/')
 def index():
     return render_template('index.html')

@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, send_file, jsonify, redirect, after_this_request
+from flask import Flask, request, render_template, send_file, jsonify, redirect, after_this_request, url_for
 import subprocess
 import os
 import shutil
@@ -16,7 +16,7 @@ sessions = {}
 # del session directory
 def cleanup_session(session_id):
     session_download_dir = os.path.join(DOWNLOAD_DIR, session_id)
-    session_download_zip = os.path.join(DOWNLOAD_DIR, session_id, ".zip")
+    session_download_zip = os.path.join(DOWNLOAD_DIR, session_id + ".zip")
     if os.path.exists(session_download_dir):
         shutil.rmtree(session_download_dir)
     
@@ -104,8 +104,12 @@ def download_progress(session_id):
     session_download_dir = os.path.join(DOWNLOAD_DIR, session_id)
     try:
         total_items = len(os.listdir(session_download_dir))
-
-        return jsonify({'success': "True", 'total_items': total_items})
+        
+        session_download_dir = os.path.join(DOWNLOAD_DIR, session_id)
+        exists = "False"
+        if os.path.exists(session_download_dir):
+            exists = "True"
+        return jsonify({'success': "True", 'total_items': total_items, 'path_exists': exists})
     except Exception as e:
         return jsonify({'success': "False", 'error_message': str(e)})
 
@@ -113,4 +117,4 @@ def download_progress(session_id):
 if __name__ == "__main__":
     if not os.path.exists(DOWNLOAD_DIR):
         os.makedirs(DOWNLOAD_DIR)
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=8080)

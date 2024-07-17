@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await fetch('/get_id', {
             method: 'GET',
         });
-        
+
         if (response.ok) {
             const jsonResponse = await response.json();
             const session_id = jsonResponse.session_id;
@@ -22,9 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const progressResponse = await fetch(`/download_progress/${session_id}`);
                 if (progressResponse.ok) {
                     const progress = await progressResponse.json();
-                    if (progress.total_items ) {
-                        progressText.textContent = `${progress.total_items} items`;
-                    }
+                    if (progress.path_exists === 'True') {
+                        if (progress.total_items) {
+                            progressText.textContent = `${progress.total_items} items`;
+                        }
+                    } else
+                        location.reload();
                 }
             }, 1000);
         } else {

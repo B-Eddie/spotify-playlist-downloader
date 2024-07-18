@@ -24,16 +24,21 @@ def cleanup_session(session_id):
         os.remove(session_download_zip)
 
 
-def remove_session(session_id):
-    if session_id in sessions:
-        del sessions[session_id]
-
 def remove_sessions():
     global sessions
     sessions = {}
 
 @app.route('/')
 def index():
+    yesno = request.args.get('yesno')
+    session_id = request.args.get('session_id')
+    if yesno == 'true':
+        data = {
+            'hide': 'display: none;',
+            'show': 'display: block;',
+            'session_id': session_id,
+        }
+        return render_template('index.html', data=data)
     return render_template('index.html')
 
 @app.route('/download', methods=['POST'])
@@ -79,12 +84,16 @@ def download_zip(session_id):
     # Schedule cleanup after response is sent
     @after_this_request
     def remove_files(response):
-        cleanup_session(session_id)
-        return response
-    
+        print("eating2")        
+        time.sleep(2)
+        return redirect(url_for('index', yesno='true', session_id=session_id))
+        # cleanup_session(session_id)
+        
+    print("Eating")
     return send_file(zip_file, as_attachment=True)
 
 
+# seperate thing
 @app.route('/get_id', methods=['GET'])
 def get_id():
     time.sleep(1)

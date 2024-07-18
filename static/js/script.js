@@ -27,7 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             progressText.textContent = `${progress.total_items} items`;
                         }
                     } else
-                        location.reload();
+                        // location.reload();
+                        console.log("DONE");
                 }
             }, 1000);
         } else {

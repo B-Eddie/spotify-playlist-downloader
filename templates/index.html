@@ -24,6 +24,12 @@
             </div>
           </div>
     </div>
+    {% if data %}
+        <div id="message">
+            <p>{{ data.hide }}</p>
+            <a href="./downloads/{{ data.session_id }}.zip" download="{{ data.session_id }}.zip">Download</a>
+        </div>
+    {% endif %}
 
     <section id="how-to-use">
         <h2>How to use?</h2>

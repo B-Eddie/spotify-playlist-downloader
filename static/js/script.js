@@ -3,6 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadButton = document.getElementById('downloadButton');
     const progressDiv = document.getElementById('progress');
     const progressText = document.querySelector('.progress-text');
+    const messageDiv = document.getElementById('messageDiv');
+    const hideParagraph = document.getElementById('hideParagraph');
+    const downloadLink = document.getElementById('downloadLink');
+    const noStuffDiv = document.getElementById('noStuffDiv');
 
     form.addEventListener('submit', async (event) => {
         downloadButton.disabled = true;
@@ -26,9 +30,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (progress.total_items) {
                             progressText.textContent = `${progress.total_items} items`;
                         }
-                    } else
-                        // location.reload();
-                        console.log("DONE");
+                    } else {
+                        clearInterval(intervalId); // Stop polling
+                        progressDiv.style.display = 'none';
+                        
+                        // Show appropriate message
+                        if (progress.total_items > 0) {
+                            messageDiv.style.display = 'block';
+                            hideParagraph.textContent = 'Loading done. Click below to download.';
+                            downloadLink.href = `./downloads/${session_id}.zip`;
+                            downloadLink.textContent = 'Download';
+                        } else {
+                            noStuffDiv.style.display = 'block';
+                        }
+                    }
                 }
             }, 1000);
         } else {

@@ -30,15 +30,6 @@ def remove_sessions():
 
 @app.route('/')
 def index():
-    yesno = request.args.get('yesno')
-    session_id = request.args.get('session_id')
-    if yesno == 'true':
-        data = {
-            'hide': 'display: none;',
-            'show': 'display: block;',
-            'session_id': session_id,
-        }
-        return render_template('index.html', data=data)
     return render_template('index.html')
 
 @app.route('/download', methods=['POST'])
@@ -81,15 +72,10 @@ def download_zip(session_id):
     zip_file = f"{session_download_dir}.zip"
     shutil.make_archive(session_download_dir, 'zip', session_download_dir)
     
-    # Schedule cleanup after response is sent
-    @after_this_request
-    def remove_files(response):
-        print("eating2")        
-        time.sleep(2)
-        return redirect(url_for('index', yesno='true', session_id=session_id))
-        # cleanup_session(session_id)
-        
-    print("Eating")
+    #deletes directory
+    session_download_dir = os.path.join(DOWNLOAD_DIR, session_id)
+    if os.path.exists(session_download_dir):
+        shutil.rmtree(session_download_dir)
     return send_file(zip_file, as_attachment=True)
 
 

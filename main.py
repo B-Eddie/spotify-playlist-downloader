@@ -54,7 +54,10 @@ def download_song():
             song_url, 
             '--output', os.path.join(session_download_dir, '{artist} - {title}.{ext}')
         ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        
+
+        print("stdout:", result.stdout)
+        print("stderr:", result.stderr)
+
         # Check if the process was successful
         if result.returncode == 0:
             return redirect(f"/download_zip/{session_id}")

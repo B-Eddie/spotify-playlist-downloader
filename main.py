@@ -108,8 +108,17 @@ def download_progress(session_id):
     except Exception as e:
         return jsonify({'success': "False", 'error_message': str(e)})
 
+@app.route('/download/<session_id>')
+def download(session_id):
+    return send_file(f'{DOWNLOAD_DIR}/{session_id}.zip')
+
+@app.route('/finish/<session_id>')
+def finish(session_id):
+    cleanup_session(session_id)
+    return redirect(url_for('index'))    
 
 if __name__ == "__main__":
     if not os.path.exists(DOWNLOAD_DIR):
         os.makedirs(DOWNLOAD_DIR)
     app.run(host='0.0.0.0', port=8080)
+

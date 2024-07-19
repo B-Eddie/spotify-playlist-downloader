@@ -175,3 +175,17 @@ span:before {
     transform: translateY(0);
   }
 }
+
+#messageDiv {
+  flex-direction: column-reverse;
+  gap: 1em;
+  margin-top: 4vh;
+}
+
+#button {
+  background-color: #4198b4;
+}
+
+#downloadLink {
+  color: white;
+}

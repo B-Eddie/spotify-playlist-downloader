@@ -1,3 +1,5 @@
+<img width="721" alt="Screenshot 2024-08-29 at 10 25 30 PM" src="https://github.com/user-attachments/assets/7537e002-48d5-457a-9eab-6edad15edf7d">
+
 # Spotify Downloader
 This is a tool that allows you to download songs from Spotify! No matter a playlist, a single song, this tool works for them all!
 
